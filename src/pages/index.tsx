@@ -1,33 +1,46 @@
 import { useMutation } from "@tanstack/react-query";
 import { type NextPage } from "next";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { api } from "~/utils/api";
-import { useState } from "react";
 
 const Home: NextPage = () => {
-  const [data, setData]=useState({});
-  const apiPost = useMutation({
-    mutationFn: () => fetch('api/one').then(r=>r.json()),
-  })
+  
+const apis=useApis(
+  {onDownloadSuccess:(data)=>{
+    const base64=data?.base64;
+    return base64
+    // if(base64) window.open(base64);
+  }}
+);
   // const hello = api.example.hello.useQuery({ text: "from tRPC" });
-  const onTest= ()=>{
-    apiPost.mutate();
-    // api.example.hello
-
-    // fetch('api/one')
-    // .then(response => response.json())
-    // .then(setData);
+  const onGrab= ()=>{
+    apis.grabSudoku.mutate();
   }
+  const onDownload= ()=>{
+    apis.download.mutate();
+  }
+  const imageUrl= apis.download.data?.base64
   return (
-    <>
-      <div>Hello World</div>
-      <button onClick={onTest}>test</button>
+    <main className="m-2">
+      <div>Sudoku Graber</div>
+      <button onClick={onGrab} className="p-2 border-2 border-black">Grab</button>
+      <button onClick={onDownload} className="p-2 border-2 border-black">Download</button>
       <div>
-      {apiPost.isLoading && "loading"}
-      {apiPost.isSuccess && 'done'}
+      {apis.grabSudoku.isLoading && "loading"}
+        <div>Count: {apis.grabSudoku.isSuccess && apis.grabSudoku.data?.count||0}</div>
       </div>
-    </>
+      {imageUrl && <img src={imageUrl}/>}
+    </main>
   );
 };
-
+function useApis(p:{onDownloadSuccess:((data: any, variables: void, context: unknown) => unknown) | undefined}){
+  const apis={
+    grabSudoku:useMutation({
+      mutationFn: () => fetch('api/grabSuokus').then(r=>r.json()),
+    }),
+    download:useMutation({
+      mutationFn: () => fetch('api/download').then(r=>r.json()),
+      onSuccess:p.onDownloadSuccess
+    })
+  }
+  return apis
+}
 export default Home;
