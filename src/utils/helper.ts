@@ -1,6 +1,5 @@
 import { readdir, writeFile, readFile } from 'node:fs/promises';
-import { RawDifficulty } from './constant';
-import * as fs from 'fs';
+import { RawDifficulty, folderGrab } from './constant';
 interface Icache {
     easy: number;
     normal: number;
@@ -18,7 +17,7 @@ interface Icache {
 // }
 const cachePath = "cache.json";
 export async function countFiles() {
-    const files = await readdir('tmp')
+    const files = await readdir(folderGrab)
     return files.length
 }
 export async function readJson() {
@@ -48,9 +47,9 @@ export async function readJson() {
     const json = anyJson as Icache
     return json
 }
-export async function saveJson(id: string | number, diff: keyof typeof RawDifficulty) {
+export async function saveJson(id: string | number, key: keyof typeof RawDifficulty | "sudoku") {
     const oldJson = await readJson();
-    const json = JSON.stringify({ ...oldJson, [diff]: id })
+    const json = JSON.stringify({ ...oldJson, [key]: id })
     try {
         await writeFile(cachePath, json);
     } catch (err) {
@@ -66,7 +65,4 @@ export function downloadBase64(name: string, url: string) {
     link.setAttribute("download", `${name}.png`); //or any other extension
     document.body.appendChild(link);
     link.click();
-}
-export function some() {
-    return 'some'
 }

@@ -1,7 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 cache.json
-/tmp
+/tmp-raw
+/tmp-junk
 # dependencies
 /node_modules
 /.pnp

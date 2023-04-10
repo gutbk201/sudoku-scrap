@@ -1,9 +1,9 @@
-import { Difficulty, baseUrl } from '~/utils/constant';
+import { Difficulty, baseUrl, folderGrab } from '~/utils/constant';
 import { countFiles, readJson, saveJson, delay } from '~/utils/helper'
 import { NextApiResponse, NextApiRequest } from 'next'
 import playwright from 'playwright'
 
-const actionTries = 2;
+const actionTries = 6;
 const diffIndex = Difficulty.normal
 export default async function handler(
     _req: NextApiRequest,
@@ -47,7 +47,7 @@ export default async function handler(
         urlObj.searchParams.set('level', diffIndex)
         urlObj.searchParams.set('set_id', id)
         const url = urlObj.toString();
-        const filePath = `tmp/${diffName}-${id}.png`;
+        const filePath = `${folderGrab}/${diffName}-${id}.png`;
         await page.goto(url);
         await page.locator("#puzzle_grid").screenshot({ path: filePath });
     }

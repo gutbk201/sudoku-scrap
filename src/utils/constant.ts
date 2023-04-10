@@ -13,3 +13,5 @@ export const Difficulty = {
 } as const
 export const baseUrl = "https://four.websudoku.com"
 // https://four.websudoku.com/?level=3&set_id=1
+export const folderGrab = "tmp-raw";
+export const folderUsed = "tmp-junk";

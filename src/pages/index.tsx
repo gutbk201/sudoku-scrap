@@ -9,42 +9,45 @@ export function downloadBase64(name: string, url: string) {
   link.click();
 }
 const Home: NextPage = () => {
-const apis=useApis(
-  {onDownloadSuccess:(data)=>{
-    const base64=data?.base64;
-    downloadBase64("merged",base64)
-  }}
-);
-  const onGrab= ()=>{
+  const apis = useApis(
+    {
+      onDownloadSuccess: (data) => {
+        const { base64, fileName } = data || {};
+        downloadBase64(fileName, base64)
+      }
+    }
+  );
+  const onGrab = () => {
     apis.grabSudoku.mutate();
   }
-  const onDownload= ()=>{
+  const onDownload = () => {
     apis.download.mutate();
   }
-  const imageUrl= apis.download.data?.base64
+  const imageUrl = apis.download.data?.base64
+  const showBtnGrab = apis.grabSudoku.isIdle || apis.grabSudoku.isSuccess;
   return (
     <main className="m-2">
       <div>Sudoku Graber</div>
-      <button onClick={onGrab} className="p-2 m-2 border-2 border-black">Grab</button>
+      {showBtnGrab && <button onClick={onGrab} className="p-2 m-2 border-2 border-black">Grab</button>}
       <button onClick={onDownload} className="p-2 m-2 border-2 border-black">Download</button>
       <div>
-      {apis.grabSudoku.isLoading && "loading"}
-        <div>Count: {apis.grabSudoku.isSuccess && apis.grabSudoku.data?.count||0}</div>
+        {apis.grabSudoku.isLoading && "loading"}
+        <div>Count: {apis.grabSudoku.isSuccess && apis.grabSudoku.data?.count || ""}</div>
       </div>
       <div className="bg-slate-200">
-        {imageUrl && <img src={imageUrl}/>}
+        {imageUrl && <img src={imageUrl} />}
       </div>
     </main>
   );
 };
-function useApis(p:{onDownloadSuccess:((data: any, variables: void, context: unknown) => unknown) | undefined}){
-  const apis={
-    grabSudoku:useMutation({
-      mutationFn: () => fetch('api/grabSuokus').then(r=>r.json()),
+function useApis(p: { onDownloadSuccess: ((data: any, variables: void, context: unknown) => unknown) | undefined }) {
+  const apis = {
+    grabSudoku: useMutation({
+      mutationFn: () => fetch('api/grabSudokus').then(r => r.json()),
     }),
-    download:useMutation({
-      mutationFn: () => fetch('api/download').then(r=>r.json()),
-      onSuccess:p.onDownloadSuccess
+    download: useMutation({
+      mutationFn: () => fetch('api/download').then(r => r.json()),
+      onSuccess: p.onDownloadSuccess
     })
   }
   return apis
