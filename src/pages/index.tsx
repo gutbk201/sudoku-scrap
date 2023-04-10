@@ -1,16 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
 import { type NextPage } from "next";
 
+export function downloadBase64(name: string, url: string) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `${name}.png`); //or any other extension
+  document.body.appendChild(link);
+  link.click();
+}
 const Home: NextPage = () => {
-  
 const apis=useApis(
   {onDownloadSuccess:(data)=>{
     const base64=data?.base64;
-    return base64
-    // if(base64) window.open(base64);
+    downloadBase64("merged",base64)
   }}
 );
-  // const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const onGrab= ()=>{
     apis.grabSudoku.mutate();
   }
@@ -21,13 +25,15 @@ const apis=useApis(
   return (
     <main className="m-2">
       <div>Sudoku Graber</div>
-      <button onClick={onGrab} className="p-2 border-2 border-black">Grab</button>
-      <button onClick={onDownload} className="p-2 border-2 border-black">Download</button>
+      <button onClick={onGrab} className="p-2 m-2 border-2 border-black">Grab</button>
+      <button onClick={onDownload} className="p-2 m-2 border-2 border-black">Download</button>
       <div>
       {apis.grabSudoku.isLoading && "loading"}
         <div>Count: {apis.grabSudoku.isSuccess && apis.grabSudoku.data?.count||0}</div>
       </div>
-      {imageUrl && <img src={imageUrl}/>}
+      <div className="bg-slate-200">
+        {imageUrl && <img src={imageUrl}/>}
+      </div>
     </main>
   );
 };

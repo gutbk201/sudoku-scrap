@@ -16,9 +16,9 @@ export default async function handler(
         { src: 'tmp/normal-57.png', x: 0 + gap, y: 0 + gap },
         { src: 'tmp/normal-58.png', x: 300 + gap * 2, y: 0 + gap },
         { src: 'tmp/normal-59.png', x: 600 + gap * 3, y: 0 + gap },
-        { src: 'tmp/normal-60.png', x: 0 + gap, y: 300 + gap * 2 },
-        { src: 'tmp/normal-61.png', x: 300 + gap * 2, y: 300 + gap * 2 },
-        { src: 'tmp/normal-62.png', x: 600 + gap * 3, y: 300 + gap * 2 },
+        { src: 'tmp/normal-61.png', x: 0 + gap, y: 300 + gap * 2 },
+        { src: 'tmp/normal-62.png', x: 300 + gap * 2, y: 300 + gap * 2 },
+        { src: 'tmp/normal-63.png', x: 600 + gap * 3, y: 300 + gap * 2 },
     ];
     const margeCofig = {
         Canvas: Canvas,
