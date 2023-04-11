@@ -14,17 +14,6 @@ export default async function handler(
         headless: true // Show the browser. 
     });
     const page = await browser.newPage();
-    //grab 10*12 sudokus and stop
-    //return numbers
-    // if (await countFiles() >= 6) {
-    //     //return merge 1 image
-    //     console.log('will merge into 1 image')
-    // } else {
-    // await takeManyScreenshot(12);
-
-    //     //return grab 12 image and check again
-    // }
-
     const diffName = Difficulty[diffIndex];
     const json = await readJson()
     let currentId = json[diffName];
