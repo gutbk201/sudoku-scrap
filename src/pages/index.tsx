@@ -26,8 +26,6 @@ export function downloadBase64(name: string, url: string) {
 }
 
 // Define the endpoint URL
-const endpoint = "/api/sudoku";
-const sseEndpoint = "/api/sse";
 const Home: NextPage = () => {
   const {
     register,
@@ -41,7 +39,7 @@ const Home: NextPage = () => {
     },
   });
   const onGrab: SubmitHandler<Iinputs> = (data) => {
-    if (apis.grabSudoku.isLoading) return;
+    if (isFetching) return;
     const params = { type: "classic", ...data };
     apis.grabSudoku.mutate(params);
   };
@@ -49,7 +47,6 @@ const Home: NextPage = () => {
     const res = await fetch("api/sudoku");
     return res.json();
   };
-  const countRes = useQuery(["sudoku"], countApi);
   const apis = useApis({
     onDownloadSuccess: (data) => {
       const { base64, fileName } = data || {};
@@ -60,23 +57,18 @@ const Home: NextPage = () => {
       countRes.refetch();
     },
   });
+  const countRes = useQuery(["sudoku"], countApi, {
+    refetchInterval: 1000 * 5,
+    enabled: apis.grabSudoku.isLoading,
+  });
+  useEffect(() => {
+    countRes.refetch();
+  }, []);
   const onDownload = () => {
     apis.download.mutate();
   };
-  // useEffect(() => {
-  //   const eventSource = new EventSource(sseEndpoint);
-  //   eventSource.onmessage = (event) => {
-  //     const value = parseInt(event.data);
-  //     console.log(value, event);
-  //     if (value === 0) eventSource.close();
-  //   };
-  //   // eventSource.
-  //   return () => {
-  //     eventSource.close();
-  //   };
-  // }, []);
-
   const onTest = async () => {
+    const sseEndpoint = "/api/sse";
     const eventSource = new EventSource(sseEndpoint);
     eventSource.onmessage = (event) => {
       const value = parseInt(event.data);
@@ -94,56 +86,66 @@ const Home: NextPage = () => {
       </div>
     );
   }
+  const isFetching = apis.grabSudoku.isLoading || apis.download.isLoading;
   return (
     <main className="m-2">
-      <div>Sudoku Graber</div>
-      <Button text="Test" onClick={onTest} />
-      <form
-        onSubmit={handleSubmit(onGrab)}
-        className="flex w-80 flex-col gap-y-2	border-2 border-solid p-4"
-      >
-        <LabelInput
-          label="Times"
-          input={
-            <input
-              type="number"
-              step="6"
-              min="6"
-              {...register("times", { required: true })}
-              className="w-full"
-            />
-          }
-        />
-        <LabelInput
-          label="Difficulty"
-          input={
-            <select {...register("diff")} className="w-full">
-              {objectEntries(RawDifficulty).map(([diff, value]) => (
-                <option key={value} value={value}>
-                  {diff}
-                </option>
-              ))}
-            </select>
-          }
-        />
-        {apis.grabSudoku.isLoading && <div>Loading...</div>}
-        <div>Count: {countRes.data?.count || ""}</div>
-        <input
-          type="submit"
-          className={`m-2 border-2 border-black p-2 opacity-${
-            enableBtnGrab ? 100 : 50
-          }`}
-          value="Grab"
-        />
-        <Button text="Download" onClick={onDownload} />
-      </form>
+      <div className="text-lg	">Sudoku Graber</div>
+      <div className="m-auto flex w-80 flex-col	gap-y-2 border-2 border-solid p-4">
+        <form onSubmit={handleSubmit(onGrab)}>
+          <LabelInput
+            label="Times"
+            input={
+              <input
+                type="number"
+                step="6"
+                min="6"
+                max="18"
+                {...register("times", { required: true })}
+                className="w-full"
+              />
+            }
+          />
+          <LabelInput
+            label="Difficulty"
+            input={
+              <select {...register("diff")} className="w-full">
+                {objectEntries(RawDifficulty).map(([diff, value]) => (
+                  <option key={value} value={value}>
+                    {diff}
+                  </option>
+                ))}
+              </select>
+            }
+          />
+          {apis.grabSudoku.isLoading && <div>Loading...</div>}
+          <div>Count: {countRes.data?.count || ""}</div>
+          <Button
+            text="Grab"
+            onClick={() => {}}
+            disabled={!enableBtnGrab}
+            className={`w-full opacity-${enableBtnGrab ? 100 : 50}`}
+          />
+        </form>
+        {apis.grabSudoku.isIdle}
+        {apis.grabSudoku.isSuccess}
+        <Button text="Download" onClick={onDownload} disabled={isFetching} />
+      </div>
       <div className="bg-slate-200">{imageUrl && <img src={imageUrl} />}</div>
     </main>
   );
 };
-function Button(p: { onClick: any; text: string }) {
+function Button(p: {
+  onClick: any;
+  text: string;
+  disabled: boolean;
+  className?: string;
+}) {
   return (
-    <button onClick={p.onClick} className="m-2 border-2 border-black p-2">
+    <button
+      onClick={p.onClick}
+      className={`mb-2 border-2 border-black p-2 ${p.className}`}
+      disabled={p.disabled}
+    >
       {p.text}
     </button>
   );

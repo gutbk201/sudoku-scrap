@@ -3,6 +3,7 @@
 cache.json
 /tmp-raw
 /tmp-junk
+/tmp
 # dependencies
 /node_modules
 /.pnp
