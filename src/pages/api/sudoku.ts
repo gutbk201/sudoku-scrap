@@ -1,7 +1,8 @@
 import { Difficulty, baseUrl, folderGrab } from "~/utils/constant";
 import playwright from "playwright";
 import { NextApiResponse, NextApiRequest } from "next";
-import { countFiles, readJson, saveJson, delay } from "~/utils/helper";
+import { countFiles, readJson, saveJson } from "~/utils/server-helper";
+import { delay } from "~/utils/helper";
 import { IRawDifficulty } from "~/utils/types";
 
 export default async function handler(
@@ -15,7 +16,7 @@ export default async function handler(
 }
 async function grabSudoku(_req: NextApiRequest, res: NextApiResponse<any>) {
   const bodyParams = _req.body as { times: number; diff: IRawDifficulty };
-  const actionTries = Math.max(Number(bodyParams?.times || 12), 18);
+  const actionTries = Number(bodyParams?.times || 12);
   //limit below 50 per hour
   const diffIndex = bodyParams?.diff || Difficulty.normal;
   const delaySecondEachTry = 120;
