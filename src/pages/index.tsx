@@ -5,28 +5,14 @@ import { type NextPage } from "next";
 import { IRawDifficulty } from "~/utils/types";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { ReactNode, useEffect, useState } from "react";
-export function objectEntries<
-  T extends Record<PropertyKey, unknown>,
-  K extends keyof T,
-  V extends T[K]
->(o: T) {
-  return Object.entries(o) as [K, V][];
-}
+import { downloadBase64, objectEntries } from "~/utils/helper";
 type Iinputs = {
   // type: string,
   times: number;
   diff: IRawDifficulty;
 };
-export function downloadBase64(name: string, url: string) {
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `${name}.png`); //or any other extension
-  document.body.appendChild(link);
-  link.click();
-}
-
 // Define the endpoint URL
-const Home: NextPage = () => {
+const Sudoku: NextPage = () => {
   const {
     register,
     handleSubmit,
@@ -175,4 +161,4 @@ function useApis(p: {
   };
   return apis;
 }
-export default Home;
+export default Sudoku;

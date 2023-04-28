@@ -49,9 +49,7 @@ async function grabSudoku(_req: NextApiRequest, res: NextApiResponse<any>) {
     const url = urlObj.toString();
     const filePath = `${folderGrab}/${diffName}-${id}.png`;
     await page.goto(url);
-    await page
-      .locator("body")
-      .screenshot({ path: `${folderGrab}/${diffName}-test.png` });
+    await page.locator("body").screenshot({ path: `tmp/debug-test.png` });
     await page.locator("#puzzle_grid").screenshot({ path: filePath });
   }
 }

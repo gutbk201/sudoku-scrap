@@ -13,7 +13,7 @@ interface Icache {
 //     "normal": 2,
 //     "hard":5,
 //     "evil": 6,
-//      "sudoku":1
+//     "sudoku":1
 // }
 const cachePath = "cache.json";
 export async function countFiles() {
@@ -29,7 +29,6 @@ export async function readJson() {
     console.log("res = ", res);
     throw Error("res is Not Json");
   }
-  // const res = await readFile(cachePath, { encoding: 'utf8' });
   if (typeof res !== "string") {
     console.log(typeof res, res);
     throw Error("read file fail, not string");
