@@ -118,7 +118,7 @@ const Home: NextPage = () => {
             }
           />
           {apis.grabSudoku.isLoading && <div>Loading...</div>}
-          <div>Count: {countRes.data?.count || ""}</div>
+          <div>Count: {countRes.data?.count ?? ""}</div>
           <Button
             text="Grab"
             onClick={() => {}}
