@@ -21,7 +21,10 @@ export default async function handler(
   const gap = 40;
   const sizeLength = 300;
 
-  const cache = await readJson();
+  // const bodyParams = _req.body as { times: number; diff: IRawDifficulty };
+  // const actionTries = Number(bodyParams?.times || 12);
+  const type = 'sudoku'
+  const cache = await readJson(type);
   const diff = (dirRes[0]?.match(/^[^-]*/g) || [""])[0];
   const shortName = `${diff.slice(0, 1).toUpperCase()}-${cache.sudoku}`;
   const nameBase64 = nameToBase64(shortName);

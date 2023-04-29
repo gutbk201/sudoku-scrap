@@ -1,4 +1,4 @@
-import { Difficulty, baseUrl, folderGrab } from "~/utils/constant";
+import { SudokuDifficulty, sudokuBaseUrl, folderGrab } from "~/utils/constant";
 import playwright from "playwright";
 import { NextApiResponse, NextApiRequest } from "next";
 import { countFiles, readJson, saveJson } from "~/utils/server-helper";
@@ -18,15 +18,16 @@ async function grabSudoku(_req: NextApiRequest, res: NextApiResponse<any>) {
   const bodyParams = _req.body as { times: number; diff: IRawDifficulty };
   const actionTries = Number(bodyParams?.times || 12);
   //limit below 50 per hour
-  const diffIndex = bodyParams?.diff || Difficulty.normal;
+  const diffIndex = bodyParams?.diff || SudokuDifficulty.normal;
   const delaySecondEachTry = 120;
   const browser = await playwright.chromium.launch({
     headless: true, // Show the browser.
     timeout: 1000 * (delaySecondEachTry * actionTries + 10),
   });
   const page = await browser.newPage();
-  const diffName = Difficulty[diffIndex];
-  const json = await readJson();
+  const diffName = SudokuDifficulty[diffIndex];
+  const type = 'sudoku'
+  const json = await readJson(type);
   let currentId = json[diffName];
   await takeManyScreenshot(actionTries);
   const count = await countFiles();
@@ -37,13 +38,13 @@ async function grabSudoku(_req: NextApiRequest, res: NextApiResponse<any>) {
     console.log(`handling batch ${cur + 1}/${times}`);
     await delay(delaySecondEachTry);
     await takeScreenshot(currentId++);
-    await saveJson(currentId, diffName);
+    await saveJson(type, currentId, diffName);
     await takeManyScreenshot(times, cur + 1);
     return true;
   }
   async function takeScreenshot(_id: number) {
     const id = String(_id);
-    let urlObj = new URL(baseUrl);
+    let urlObj = new URL(sudokuBaseUrl);
     urlObj.searchParams.set("level", diffIndex);
     urlObj.searchParams.set("set_id", id);
     const url = urlObj.toString();

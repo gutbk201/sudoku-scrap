@@ -1,5 +1,5 @@
 import { readdir, writeFile, readFile } from "node:fs/promises";
-import { RawDifficulty, folderGrab } from "./constant";
+import { SudokuRawDifficulty, folderGrab } from "./constant";
 interface Icache {
   easy: number;
   normal: number;
@@ -15,16 +15,19 @@ interface Icache {
 //     "evil": 6,
 //     "sudoku":1
 // }
-const cachePath = "cache.json";
+const cachePath = {
+  sudoku: "sudoku-cache.json",
+  killer: "killer-cache.json",
+};
 export async function countFiles() {
   const files = await readdir(folderGrab);
   return files.length;
 }
-export async function readJson() {
+export async function readJson(type: "sudoku" | "killer") {
   let anyJson = {};
   let res;
   try {
-    res = await readFile(cachePath, { encoding: "utf8" });
+    res = await readFile(cachePath[type], { encoding: "utf8" });
   } catch (err) {
     console.log("res = ", res);
     throw Error("res is Not Json");
@@ -47,13 +50,14 @@ export async function readJson() {
   return json;
 }
 export async function saveJson(
+  type: "sudoku" | "killer",
   id: string | number,
-  key: keyof typeof RawDifficulty | "sudoku"
+  key: keyof typeof SudokuRawDifficulty | "sudoku"
 ) {
-  const oldJson = await readJson();
+  const oldJson = await readJson(type);
   const json = JSON.stringify({ ...oldJson, [key]: id });
   try {
-    await writeFile(cachePath, json);
+    await writeFile(cachePath[type], json);
   } catch (err) {
     console.log(err);
   }
