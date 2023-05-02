@@ -1,2 +1,3 @@
 import Sudoku from "./sudoku";
-export default Sudoku;
+import Killer from "./killer";
+export default Killer;

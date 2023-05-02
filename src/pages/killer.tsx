@@ -1,29 +1,29 @@
-import { SudokuDifficulty, SudokuRawDifficulty } from "~/utils/constant";
+import { KillerDifficulty } from "~/utils/constant";
+import { IRawKillerDifficulty } from "~/utils/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { type NextPage } from "next";
-import { IRawDifficulty } from "~/utils/types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ReactNode, useEffect } from "react";
 import { downloadBase64, objectEntries } from "~/utils/helper";
 type Iinputs = {
   times: number;
-  diff: IRawDifficulty;
+  diff: IRawKillerDifficulty;
 };
+const endpoint = "api/killer";
 const Killer: NextPage = () => {
   const { register, handleSubmit } = useForm({
     defaultValues: {
-      diff: SudokuDifficulty.normal,
-      times: 12,
+      diff: KillerDifficulty[2],
+      times: 10,
     },
   });
   const onGrab: SubmitHandler<Iinputs> = (data) => {
     if (isFetching) return;
-    const params = { type: "classic", ...data };
-    apis.grabSudoku.mutate(params);
+    apis.grabKiller.mutate(data);
   };
   const countApi = async () => {
-    const res = await fetch("api/sudoku");
+    const res = await fetch(endpoint);
     return res.json();
   };
   const apis = useApis({
@@ -38,7 +38,7 @@ const Killer: NextPage = () => {
   });
   const countRes = useQuery(["sudoku"], countApi, {
     refetchInterval: 1000 * 5,
-    enabled: apis.grabSudoku.isLoading,
+    enabled: apis.grabKiller.isLoading,
   });
   useEffect(() => {
     countRes.refetch();
@@ -56,7 +56,7 @@ const Killer: NextPage = () => {
     };
   };
   const imageUrl = apis.download.data?.base64;
-  const enableBtnGrab = apis.grabSudoku.isIdle || apis.grabSudoku.isSuccess;
+  const enableBtnGrab = apis.grabKiller.isIdle || apis.grabKiller.isSuccess;
   function LabelInput(p: { label: string; input: ReactNode }) {
     return (
       <div className="flex justify-between">
@@ -65,7 +65,7 @@ const Killer: NextPage = () => {
       </div>
     );
   }
-  const isFetching = apis.grabSudoku.isLoading || apis.download.isLoading;
+  const isFetching = apis.grabKiller.isLoading || apis.download.isLoading;
   return (
     <main className="m-2">
       <div className="text-lg	">Killer Graber</div>
@@ -76,9 +76,9 @@ const Killer: NextPage = () => {
             input={
               <input
                 type="number"
-                step="6"
-                min="6"
-                max="18"
+                step="10"
+                min="10"
+                max="60"
                 {...register("times", { required: true })}
                 className="w-full"
               />
@@ -88,7 +88,7 @@ const Killer: NextPage = () => {
             label="Difficulty"
             input={
               <select {...register("diff")} className="w-full">
-                {objectEntries(SudokuRawDifficulty).map(([diff, value]) => (
+                {objectEntries(KillerDifficulty).map(([diff, value]) => (
                   <option key={value} value={value}>
                     {diff}
                   </option>
@@ -96,17 +96,17 @@ const Killer: NextPage = () => {
               </select>
             }
           />
-          {apis.grabSudoku.isLoading && <div>Loading...</div>}
+          {apis.grabKiller.isLoading && <div>Loading...</div>}
           <div>Count: {countRes.data?.count ?? ""}</div>
           <Button
             text="Grab"
-            onClick={() => { }}
+            onClick={() => {}}
             disabled={!enableBtnGrab}
             className={`w-full opacity-${enableBtnGrab ? 100 : 50}`}
           />
         </form>
-        {apis.grabSudoku.isIdle}
-        {apis.grabSudoku.isSuccess}
+        {apis.grabKiller.isIdle}
+        {apis.grabKiller.isSuccess}
         <Button text="Download" onClick={onDownload} disabled={isFetching} />
       </div>
       <div className="bg-slate-200">{imageUrl && <img src={imageUrl} />}</div>
@@ -132,19 +132,18 @@ function Button(p: {
 
 function useApis(p: {
   onDownloadSuccess:
-  | ((data: any, variables: void, context: unknown) => unknown)
-  | undefined;
+    | ((data: any, variables: void, context: unknown) => unknown)
+    | undefined;
   onGrabSuccess:
-  | ((data: any, variables: void, context: unknown) => unknown)
-  | undefined;
+    | ((data: any, variables: void, context: unknown) => unknown)
+    | undefined;
 }) {
   const apis = {
-    grabSudoku: useMutation<any, any, any>({
+    grabKiller: useMutation<any, any, any>({
       mutationFn: (params: {
         times: number;
-        diff: IRawDifficulty;
-        type: "classic";
-      }) => axios.post("api/sudoku", params),
+        diff: keyof typeof KillerDifficulty;
+      }) => axios.post(endpoint, params),
       onSuccess: p.onGrabSuccess,
     }),
     download: useMutation({

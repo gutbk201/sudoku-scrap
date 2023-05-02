@@ -1,13 +1,13 @@
 import { readdir, writeFile, readFile } from "node:fs/promises";
-import { SudokuRawDifficulty, folderGrab } from "./constant";
-interface Icache {
+import { KillerDifficulty, folderSudoku, folderKiller } from "./constant";
+interface IsudokuCache {
   easy: number;
   normal: number;
   hard: number;
   evil: number;
   sudoku: number;
 }
-//example cache.json
+//example sudoku-cache.json
 // {
 //     "easy": 1,
 //     "normal": 2,
@@ -15,14 +15,19 @@ interface Icache {
 //     "evil": 6,
 //     "sudoku":1
 // }
+type IkillerCache = typeof KillerDifficulty & { killer: number };
 const cachePath = {
   sudoku: "sudoku-cache.json",
   killer: "killer-cache.json",
 };
-export async function countFiles() {
-  const files = await readdir(folderGrab);
+export async function countFiles(type: "sudoku" | "killer") {
+  const folder = type === "sudoku" ? folderSudoku : folderKiller;
+  const files = await readdir(folder);
   return files.length;
 }
+// function makeDate(timestamp: number): Date;
+export async function readJson(type: "sudoku"): Promise<IsudokuCache>;
+export async function readJson(type: "killer"): Promise<IkillerCache>;
 export async function readJson(type: "sudoku" | "killer") {
   let anyJson = {};
   let res;
@@ -42,19 +47,28 @@ export async function readJson(type: "sudoku" | "killer") {
     console.log("res = ", res);
     throw Error("res is Not Json");
   }
-  if (!("easy" in anyJson)) {
-    console.log(anyJson);
-    throw Error("Wrong cache format");
+  if (type === "sudoku") {
+    if (!("sudoku" in anyJson)) {
+      console.log(anyJson);
+      throw Error("Wrong sudoku cache format");
+    }
+    return anyJson as IsudokuCache;
   }
-  const json = anyJson as Icache;
-  return json;
+  if (type === "killer") {
+    if (!("killer" in anyJson)) {
+      console.log(anyJson);
+      throw Error("Wrong killer cache format");
+    }
+    return anyJson as IkillerCache;
+  }
 }
 export async function saveJson(
   type: "sudoku" | "killer",
   id: string | number,
-  key: keyof typeof SudokuRawDifficulty | "sudoku"
+  key: string | number
 ) {
-  const oldJson = await readJson(type);
+  const oldJson =
+    type === "sudoku" ? await readJson(type) : await readJson(type);
   const json = JSON.stringify({ ...oldJson, [key]: id });
   try {
     await writeFile(cachePath[type], json);

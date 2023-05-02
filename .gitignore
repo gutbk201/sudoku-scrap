@@ -2,8 +2,10 @@
 
 sudoku-cache.json
 killer-cache.json
-/tmp-raw
+/tmp-images
 /tmp-junk
+/tmp-sudoku
+/tmp-killer
 /tmp
 # dependencies
 /node_modules

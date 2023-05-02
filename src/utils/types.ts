@@ -1,3 +1,4 @@
-import { SudokuRawDifficulty } from '~/utils/constant';
+import { SudokuRawDifficulty, KillerDifficulty } from "~/utils/constant";
 export type ValueOf<T> = T[keyof T];
-export type IRawDifficulty = ValueOf<typeof SudokuRawDifficulty>
+export type IRawSudokuDifficulty = ValueOf<typeof SudokuRawDifficulty>;
+export type IRawKillerDifficulty = ValueOf<typeof KillerDifficulty>;

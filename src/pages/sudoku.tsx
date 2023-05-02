@@ -2,14 +2,14 @@ import { SudokuDifficulty, SudokuRawDifficulty } from "~/utils/constant";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { type NextPage } from "next";
-import { IRawDifficulty } from "~/utils/types";
+import { IRawSudokuDifficulty } from "~/utils/types";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { ReactNode, useEffect, useState } from "react";
 import { downloadBase64, objectEntries } from "~/utils/helper";
 type Iinputs = {
   // type: string,
   times: number;
-  diff: IRawDifficulty;
+  diff: IRawSudokuDifficulty;
 };
 // Define the endpoint URL
 const Sudoku: NextPage = () => {
@@ -107,7 +107,7 @@ const Sudoku: NextPage = () => {
           <div>Count: {countRes.data?.count ?? ""}</div>
           <Button
             text="Grab"
-            onClick={() => { }}
+            onClick={() => {}}
             disabled={!enableBtnGrab}
             className={`w-full opacity-${enableBtnGrab ? 100 : 50}`}
           />
@@ -139,17 +139,17 @@ function Button(p: {
 
 function useApis(p: {
   onDownloadSuccess:
-  | ((data: any, variables: void, context: unknown) => unknown)
-  | undefined;
+    | ((data: any, variables: void, context: unknown) => unknown)
+    | undefined;
   onGrabSuccess:
-  | ((data: any, variables: void, context: unknown) => unknown)
-  | undefined;
+    | ((data: any, variables: void, context: unknown) => unknown)
+    | undefined;
 }) {
   const apis = {
     grabSudoku: useMutation<any, any, any>({
       mutationFn: (params: {
         times: number;
-        diff: IRawDifficulty;
+        diff: IRawSudokuDifficulty;
         type: "classic";
       }) => axios.post("api/sudoku", params),
       onSuccess: p.onGrabSuccess,

@@ -3,12 +3,12 @@ import mergeImages from "merge-images";
 const { createCanvas, Canvas, Image } = require("canvas");
 import { NextApiResponse, NextApiRequest } from "next";
 import { readJson, saveJson } from "~/utils/server-helper";
-import { folderGrab, folderUsed } from "~/utils/constant";
+import { folderSudoku, folderUsed } from "~/utils/constant";
 export default async function handler(
   _req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  const dirRes = await readdir(folderGrab);
+  const dirRes = await readdir(folderSudoku);
   const targetPaths = dirRes
     .slice()
     .sort((a, b) => {
@@ -34,7 +34,7 @@ export default async function handler(
       const yy = i % 2;
       const x = sizeLength * xx + gap * (xx + 1);
       const y = 300 * yy + gap * (yy + 1);
-      return { src: `${folderGrab}/${p}`, x, y };
+      return { src: `${folderSudoku}/${p}`, x, y };
     })
     .concat({ src: nameBase64, x: 0, y: 0 });
   const margeCofig = {

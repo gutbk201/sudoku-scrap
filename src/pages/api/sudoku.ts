@@ -1,21 +1,26 @@
-import { SudokuDifficulty, sudokuBaseUrl, folderGrab } from "~/utils/constant";
+import {
+  SudokuDifficulty,
+  sudokuBaseUrl,
+  folderSudoku,
+} from "~/utils/constant";
 import playwright from "playwright";
 import { NextApiResponse, NextApiRequest } from "next";
 import { countFiles, readJson, saveJson } from "~/utils/server-helper";
 import { delay } from "~/utils/helper";
-import { IRawDifficulty } from "~/utils/types";
+import { IRawSudokuDifficulty } from "~/utils/types";
 
+const type = "sudoku";
 export default async function handler(
   _req: NextApiRequest,
   res: NextApiResponse<{ done: "yes" | "no"; count?: number }>
 ) {
   if (_req.method === "GET")
-    return res.status(200).json({ done: "yes", count: await countFiles() });
+    return res.status(200).json({ done: "yes", count: await countFiles(type) });
   if (_req.method === "POST") return grabSudoku(_req, res);
   return res.status(200).json({ done: "no" });
 }
 async function grabSudoku(_req: NextApiRequest, res: NextApiResponse<any>) {
-  const bodyParams = _req.body as { times: number; diff: IRawDifficulty };
+  const bodyParams = _req.body as { times: number; diff: IRawSudokuDifficulty };
   const actionTries = Number(bodyParams?.times || 12);
   //limit below 50 per hour
   const diffIndex = bodyParams?.diff || SudokuDifficulty.normal;
@@ -26,16 +31,15 @@ async function grabSudoku(_req: NextApiRequest, res: NextApiResponse<any>) {
   });
   const page = await browser.newPage();
   const diffName = SudokuDifficulty[diffIndex];
-  const type = 'sudoku'
   const json = await readJson(type);
   let currentId = json[diffName];
   await takeManyScreenshot(actionTries);
-  const count = await countFiles();
+  const count = await countFiles(type);
   return res.status(200).json({ done: "yes", count });
   async function takeManyScreenshot(times: number, cur = 0) {
     if (cur === times)
       return console.log("done", new Date().toLocaleTimeString());
-    console.log(`handling batch ${cur + 1}/${times}`);
+    console.log(`handling sudoku batch ${cur + 1}/${times}`);
     await delay(delaySecondEachTry);
     await takeScreenshot(currentId++);
     await saveJson(type, currentId, diffName);
@@ -48,7 +52,7 @@ async function grabSudoku(_req: NextApiRequest, res: NextApiResponse<any>) {
     urlObj.searchParams.set("level", diffIndex);
     urlObj.searchParams.set("set_id", id);
     const url = urlObj.toString();
-    const filePath = `${folderGrab}/${diffName}-${id}.png`;
+    const filePath = `${folderSudoku}/${diffName}-${id}.png`;
     await page.goto(url);
     await page.locator("body").screenshot({ path: `tmp/debug-test.png` });
     await page.locator("#puzzle_grid").screenshot({ path: filePath });
