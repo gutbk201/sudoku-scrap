@@ -5,7 +5,7 @@ interface IsudokuCache {
   normal: number;
   hard: number;
   evil: number;
-  sudoku: number;
+  id: number;
 }
 //example sudoku-cache.json
 // {
@@ -15,7 +15,7 @@ interface IsudokuCache {
 //     "evil": 6,
 //     "sudoku":1
 // }
-type IkillerCache = typeof KillerDifficulty & { killer: number };
+type IkillerCache = typeof KillerDifficulty & { id: number };
 const cachePath = {
   sudoku: "sudoku-cache.json",
   killer: "killer-cache.json",
@@ -48,14 +48,14 @@ export async function readJson(type: "sudoku" | "killer") {
     throw Error("res is Not Json");
   }
   if (type === "sudoku") {
-    if (!("sudoku" in anyJson)) {
+    if (!("id" in anyJson)) {
       console.log(anyJson);
       throw Error("Wrong sudoku cache format");
     }
     return anyJson as IsudokuCache;
   }
   if (type === "killer") {
-    if (!("killer" in anyJson)) {
+    if (!("id" in anyJson)) {
       console.log(anyJson);
       throw Error("Wrong killer cache format");
     }

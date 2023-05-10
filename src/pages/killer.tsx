@@ -62,7 +62,7 @@ const Killer: NextPage = () => {
       <div className="text-lg	">Killer Graber</div>
       <div className="m-auto flex w-80 flex-col	gap-y-2 border-2 border-solid p-4">
         <form onSubmit={handleSubmit(onGrab)}>
-          <LabelInput
+          {/* <LabelInput
             label="Times"
             input={
               <input
@@ -74,7 +74,7 @@ const Killer: NextPage = () => {
                 className="w-full"
               />
             }
-          />
+          /> */}
           <LabelInput
             label="Difficulty"
             input={
@@ -91,7 +91,7 @@ const Killer: NextPage = () => {
           <div>Count: {countRes.data?.count ?? ""}</div>
           <Button
             text="Grab"
-            onClick={() => {}}
+            onClick={() => { }}
             disabled={!enableBtnGrab}
             className={`w-full opacity-${enableBtnGrab ? 100 : 50}`}
           />
@@ -123,11 +123,11 @@ function Button(p: {
 
 function useApis(p: {
   onDownloadSuccess:
-    | ((data: any, variables: void, context: unknown) => unknown)
-    | undefined;
+  | ((data: any, variables: void, context: unknown) => unknown)
+  | undefined;
   onGrabSuccess:
-    | ((data: any, variables: void, context: unknown) => unknown)
-    | undefined;
+  | ((data: any, variables: void, context: unknown) => unknown)
+  | undefined;
 }) {
   const apis = {
     grabKiller: useMutation<any, any, any>({
