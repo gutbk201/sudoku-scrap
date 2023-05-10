@@ -26,6 +26,7 @@ const Sudoku: NextPage = () => {
   });
   const onGrab: SubmitHandler<Iinputs> = (data) => {
     if (isFetching) return;
+    if (data.times === 0) return alert("minimum is 1");
     const params = { type: "classic", ...data };
     apis.grabSudoku.mutate(params);
   };
@@ -84,7 +85,7 @@ const Sudoku: NextPage = () => {
               <input
                 type="number"
                 step="6"
-                min="1"
+                min="0"
                 max="18"
                 {...register("times", { required: true })}
                 className="w-full"

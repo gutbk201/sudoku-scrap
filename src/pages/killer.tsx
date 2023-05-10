@@ -12,7 +12,7 @@ type Iinputs = {
 };
 const endpoint = "api/killer";
 const Killer: NextPage = () => {
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, getValues } = useForm({
     defaultValues: {
       diff: KillerDifficulty[2],
       times: 10,
@@ -36,7 +36,7 @@ const Killer: NextPage = () => {
       countRes.refetch();
     },
   });
-  const countRes = useQuery(["sudoku"], countApi, {
+  const countRes = useQuery(["killer"], countApi, {
     refetchInterval: 1000 * 5,
     enabled: apis.grabKiller.isLoading,
   });
@@ -44,16 +44,7 @@ const Killer: NextPage = () => {
     countRes.refetch();
   }, []);
   const onDownload = () => {
-    apis.download.mutate();
-  };
-  const onTest = async () => {
-    const sseEndpoint = "/api/sse";
-    const eventSource = new EventSource(sseEndpoint);
-    eventSource.onmessage = (event) => {
-      const value = parseInt(event.data);
-      console.log(value, event);
-      if (value === 0) eventSource.close();
-    };
+    apis.download.mutate({ diff: getValues().diff });
   };
   const imageUrl = apis.download.data?.base64;
   const enableBtnGrab = apis.grabKiller.isIdle || apis.grabKiller.isSuccess;
@@ -146,8 +137,14 @@ function useApis(p: {
       }) => axios.post(endpoint, params),
       onSuccess: p.onGrabSuccess,
     }),
-    download: useMutation({
-      mutationFn: () => fetch("api/download").then((r) => r.json()),
+    download: useMutation<any, any, any>({
+      mutationFn: async (params: { diff: keyof typeof KillerDifficulty }) => {
+        const res = await axios.post<any, any>("api/download", {
+          type: "killer",
+          diff: params.diff,
+        });
+        return res.data;
+      },
       onSuccess: p.onDownloadSuccess,
     }),
   };
