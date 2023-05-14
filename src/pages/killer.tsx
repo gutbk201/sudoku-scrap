@@ -6,13 +6,14 @@ import { type NextPage } from "next";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ReactNode, useEffect } from "react";
 import { downloadBase64, objectEntries } from "~/utils/helper";
+
 type Iinputs = {
   times: number;
   diff: IRawKillerDifficulty;
 };
 const endpoint = "api/killer";
 const Killer: NextPage = () => {
-  const { register, handleSubmit, getValues } = useForm({
+  const { register, handleSubmit, getValues, watch } = useForm({
     defaultValues: {
       diff: KillerDifficulty[2],
       times: 10,
@@ -22,8 +23,12 @@ const Killer: NextPage = () => {
     if (isFetching) return;
     apis.grabKiller.mutate(data);
   };
+  const diff = watch('diff');
   const countApi = async () => {
-    const res = await fetch(endpoint);
+    const url = new URL(`${window.location.href}${endpoint}`)
+    const params = { diff: getValues().diff }
+    url.search = new URLSearchParams(params as any).toString();
+    const res = await fetch(url);
     return res.json();
   };
   const apis = useApis({
@@ -36,9 +41,10 @@ const Killer: NextPage = () => {
       countRes.refetch();
     },
   });
-  const countRes = useQuery(["killer"], countApi, {
-    refetchInterval: 1000 * 5,
-    enabled: apis.grabKiller.isLoading,
+
+  const countRes = useQuery(["killer", diff], countApi, {
+    refetchInterval: 1000 * 30,
+    // enabled: apis.grabKiller.isLoading,
   });
   useEffect(() => {
     countRes.refetch();
@@ -62,19 +68,6 @@ const Killer: NextPage = () => {
       <div className="text-lg	">Killer Graber</div>
       <div className="m-auto flex w-80 flex-col	gap-y-2 border-2 border-solid p-4">
         <form onSubmit={handleSubmit(onGrab)}>
-          {/* <LabelInput
-            label="Times"
-            input={
-              <input
-                type="number"
-                step="10"
-                min="10"
-                max="60"
-                {...register("times", { required: true })}
-                className="w-full"
-              />
-            }
-          /> */}
           <LabelInput
             label="Difficulty"
             input={

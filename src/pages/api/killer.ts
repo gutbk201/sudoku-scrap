@@ -1,8 +1,10 @@
 import { KillerDifficulty, killerBaseUrl, folderKiller } from "~/utils/constant";
 import playwright from "playwright";
 import { NextApiResponse, NextApiRequest } from "next";
-import { countFiles, readJson, saveJson } from "~/utils/server-helper";
+import { readJson, saveJson } from "~/utils/server-helper";
 import { delay } from "~/utils/helper";
+import { readdir } from "node:fs/promises";
+import { IRawKillerDifficulty } from "~/utils/types";
 
 type IRawDifficulty = keyof typeof KillerDifficulty;
 const type = 'killer';
@@ -10,8 +12,10 @@ export default async function handler(
   _req: NextApiRequest,
   res: NextApiResponse<{ done: "yes" | "no"; count?: number }>
 ) {
-  if (_req.method === "GET")
-    return res.status(200).json({ done: "yes", count: await countFiles(type) });
+  if (_req.method === "GET") {
+    const { diff = "2" } = _req.query as { diff: IRawKillerDifficulty };
+    return res.status(200).json({ done: "yes", count: await countFiles({ diff }) })
+  }
   if (_req.method === "POST") return grabKiller(_req, res);
   return res.status(200).json({ done: "no" });
 }
@@ -31,7 +35,7 @@ async function grabKiller(_req: NextApiRequest, res: NextApiResponse<any>) {
   let currentPage = json[diffName];
   await takeScreenshot(currentPage);
   await saveJson(type, currentPage + 1, diffName);
-  const count = await countFiles(type);
+  const count = await countFiles({ diff: diffName });
   return res.status(200).json({ done: "yes", count });
   async function takeScreenshot(currentPage: string) {
     console.log('takeScreenshot runs', currentPage)
@@ -50,4 +54,8 @@ async function grabKiller(_req: NextApiRequest, res: NextApiResponse<any>) {
     await Promise.all(getScreensArray);
     console.log('takeScreenshot end', currentPage)
   }
+}
+async function countFiles({ diff = "2" as IRawKillerDifficulty }) {
+  const files = (await readdir(folderKiller)).filter(names => names.includes(`diff${diff}`));
+  return files.length;
 }

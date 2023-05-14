@@ -60,7 +60,7 @@ async function mergeSudoku() {
   };
   const base64 = await mergeImages(imagePaths, margeCofig);
   const fileName = `${type}-${diff}-${cache.id}`;
-  saveJson(type, cache.id + 1, type);
+  saveJson(type, cache.id + 1, 'id');
   targetPaths.forEach((name) =>
     rename(`${theFolder}/${name}`, `${folderUsed}/${type}/${name}`)
   );
@@ -71,6 +71,7 @@ async function mergeKiller(diff: IRawKillerDifficulty) {
   const theFolder = folders[type];
   const dirRes = await readdir(theFolder);
   const targetPaths = dirRes
+    .filter(names => names.includes(`diff${diff}`))
     .slice()
     .sort((a, b) => {
       const idA = Number(a.match(/\d+/));
@@ -78,6 +79,7 @@ async function mergeKiller(diff: IRawKillerDifficulty) {
       return idA - idB;
     })
     .slice(0, 6);
+  if (targetPaths.length < 6) throw Error('mergeKiller ,less than 6 images')
   const gap = 40;
   const sizeLength = 450;
   const cache = await readJson(type);
@@ -100,7 +102,7 @@ async function mergeKiller(diff: IRawKillerDifficulty) {
   };
   const base64 = await mergeImages(imagePaths, margeCofig);
   const fileName = `${type}-${diff}-${cache.id}`;
-  saveJson(type, cache.id + 1, type);
+  saveJson(type, cache.id + 1, "id");
   targetPaths.forEach((name) =>
     rename(`${theFolder}/${name}`, `${folderUsed}/${type}/${name}`)
   );
